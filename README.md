@@ -1,6 +1,3 @@
-# flask-zappa
-Serverless Flask on AWS Lambda + API Gateway
-
 ![Logo](http://i.imgur.com/vLflpND.gif)
 # flask-zappa [![Build Status](https://travis-ci.org/Miserlou/flask-zappa.svg)](https://travis-ci.org/Miserlou/flask-zappa)
 #### Serverless Flask with AWS Lambda + API Gateway
