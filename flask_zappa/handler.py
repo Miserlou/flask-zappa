@@ -28,14 +28,13 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
 
     # This is a normal HTTP request
     if event.get('method', None):
-        # TODO: Enable echo command
-        # # If we just want to inspect this,
-        # # return this event instead of processing the request
-        # # https://your_api.aws-api.com/?event_echo=true
-        # event_echo = getattr(settings, "EVENT_ECHO", True)
-        # if event_echo:
-        #     if 'event_echo' in event['params'].values():
-        #         return {'Content': str(event) + '\n' + str(context), 'Status': 200}
+        # If we just want to inspect this,
+        # return this event instead of processing the request
+        # https://your_api.aws-api.com/?event_echo=true
+        event_echo = getattr(settings, "EVENT_ECHO", True)
+        if event_echo:
+            if 'event_echo' in event['params'].values():
+                return {'Content': str(event) + '\n' + str(context), 'Status': 200}
 
         # TODO: Enable Let's Encrypt
         # # If Let's Encrypt is defined in the settings,
@@ -51,7 +50,7 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
         #                 return {'Content': lets_encrypt_challenge_content, 'Status': 200}
 
         # Create the environment for WSGI and handle the request
-        environ = create_wsgi_request(event, script_name='app.py:app',
+        environ = create_wsgi_request(event, script_name=settings.SCRIPT_NAME,
                                       trailing_slash=False)
         print 'environ', environ
 
@@ -75,6 +74,8 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
             if app.should_ignore_error(error):
                 error = None
             ctx.auto_pop(error)
+
+        response.autocorrect_location_header = False
 
         # Call close to ensure all registered functions which might have an
         # effect on the response is called.
@@ -119,7 +120,9 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
         # so they still work for apps on raw APIGW and on a domain.
         elif status_code in [301, 302]:
             location = returnme['Location']
-            location = '/' + location.replace("http://zappa/", "")
+            # Location is by default relative on Flask. Location is by default
+            # absolute on Werkzeug, but we have set autocorrect_location_header
+            # on the response to False.
             raise Exception(location)
         else:
             return returnme
