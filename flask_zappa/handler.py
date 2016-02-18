@@ -67,7 +67,7 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
                 response = app.full_dispatch_request()
             except Exception as e:
                 error = e
-                response = app.make_response(app.app.handle_exception(e))
+                response = app.make_response(app.handle_exception(e))
             # response is now of type app.response_class
             # (default=werkzeug.wrappers.Response)
         finally:
