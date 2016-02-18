@@ -1,1 +1,4 @@
-zappa==0.10.3
+click==6.2
+Flask>=0.10.1
+requests==2.9.1
+zappa==0.10.4
