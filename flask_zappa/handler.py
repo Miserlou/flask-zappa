@@ -85,7 +85,7 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
         # pack the response as a deterministic B64 string and raise it
         # as an error to match our APIGW regex.
         # The DOCTYPE ensures that the page still renders in the browser.
-        if response.status_code in [400, 401, 403, 500]:
+        if response.status_code in [400, 401, 403, 404, 500]:
             content = "<!DOCTYPE html>" + str(response.status_code) + response.data
             b64_content = base64.b64encode(content)
             raise Exception(b64_content)
