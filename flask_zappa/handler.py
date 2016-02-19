@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 import base64
 import os
 import importlib
-
-from zappa.wsgi import create_wsgi_request
-
 from urllib import urlencode
 from StringIO import StringIO
+
+from werkzeug.wrappers import Response
+from zappa.wsgi import create_wsgi_request
 
 
 def lambda_handler(event, context, settings_name="zappa_settings"):
@@ -23,6 +23,10 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
 
     # The flask-app
     app = getattr(app_module, settings.APP_OBJECT)
+
+    # TODO: For hooking in generic wsgi middleware when ready
+    # from middleware import ZappaWSGIMiddleware
+    # app.wsgi_app = ZappaWSGIMiddleware(app.wsgi_app)
 
     print 'event', event
 
@@ -52,80 +56,50 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
         # Create the environment for WSGI and handle the request
         environ = create_wsgi_request(event, script_name=settings.SCRIPT_NAME,
                                       trailing_slash=False)
-        print 'environ', environ
+        print 'environ =', environ
 
-        # This entire try-finally clause is stolen directly from
-        # flask.app.py:Flask.wsgi_app(self, environ, start_response). The only
-        # difference is that we don't call
-        # return response(environ, start_response) after the inner try-except,
-        # as we need access to the headers, and status code as well.
-        ctx = app.request_context(environ)
-        ctx.push()
-        error = None
-        try:
-            try:
-                response = app.full_dispatch_request()
-            except Exception as e:
-                error = e
-                response = app.make_response(app.handle_exception(e))
-            # response is now of type app.response_class
-            # (default=werkzeug.wrappers.Response)
-        finally:
-            if app.should_ignore_error(error):
-                error = None
-            ctx.auto_pop(error)
+        response = Response.from_app(app, environ)
 
-        response.autocorrect_location_header = False
+        # This doesn't work. It should probably be set right after creation, not
+        # at such a late stage.
+        # response.autocorrect_location_header = False
 
-        # Call close to ensure all registered functions which might have an
-        # effect on the response is called.
-        response.close()
+        zappa_returndict = dict()
 
-        status_code = response.status_code
-
-        # This will either contain the content in .next() or None if the http
-        # request type requires an empty response.
-        response_iter, _, headers = response.get_wsgi_response(environ)
-
-        try:
-            response_content = response_iter.next()
-            returnme = {'Content': response_content}
-        except StopIteration:
-            response_content = None
-            # Prepare the special dictionary which will be returned to the API GW.
-            returnme = dict()
+        if response.data:
+            zappa_returndict['Content'] = response.data
 
         # Pack the WSGI response into our special dictionary.
-        for (header_name, header_value) in headers:
-            returnme[header_name] = header_value
-        returnme['Status'] = status_code
+        for (header_name, header_value) in response.headers:
+            zappa_returndict[header_name] = header_value
+        zappa_returndict['Status'] = response.status_code
 
         # TODO: No clue how to handle the flask-equivalent of this. Or is this
         # something entirely specified by the middleware?
         # # Parse the WSGI Cookie and pack it.
         # cookie = response.cookies.output()
         # if ': ' in cookie:
-        #     returnme['Set-Cookie'] = response.cookies.output().split(': ')[1]
+        #     zappa_returndict['Set-Cookie'] = response.cookies.output().split(': ')[1]
 
         # To ensure correct status codes, we need to
         # pack the response as a deterministic B64 string and raise it
         # as an error to match our APIGW regex.
         # The DOCTYPE ensures that the page still renders in the browser.
         if response.status_code in [400, 401, 403, 500]:
-            content = response_content
-            content = "<!DOCTYPE html>" + str(status_code) + response.content
+            content = "<!DOCTYPE html>" + str(response.status_code) + response.data
             b64_content = base64.b64encode(content)
             raise Exception(b64_content)
         # Internal are changed to become relative redirects
         # so they still work for apps on raw APIGW and on a domain.
-        elif status_code in [301, 302]:
-            location = returnme['Location']
+        elif response.status_code in [301, 302]:
             # Location is by default relative on Flask. Location is by default
-            # absolute on Werkzeug, but we have set autocorrect_location_header
-            # on the response to False.
+            # absolute on Werkzeug. We can set autocorrect_location_header on
+            # the response to False, but it doesn't work. We have to manually
+            # remove the host part.
+            location = response.location.split(environ[u'HTTP_HOST'])[1]
             raise Exception(location)
         else:
-            return returnme
+            return zappa_returndict
 
     # # This is a management command invocation.
     # elif event.get('command', None):
