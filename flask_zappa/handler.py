@@ -9,6 +9,8 @@ from StringIO import StringIO
 from werkzeug.wrappers import Response
 from zappa.wsgi import create_wsgi_request
 
+from zappa.middleware import ZappaWSGIMiddleware
+
 
 def lambda_handler(event, context, settings_name="zappa_settings"):
     """ An AWS Lambda function which parses specific API Gateway input into a
@@ -24,9 +26,7 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
     # The flask-app
     app = getattr(app_module, settings.APP_OBJECT)
 
-    # TODO: For hooking in generic wsgi middleware when ready
-    # from middleware import ZappaWSGIMiddleware
-    # app.wsgi_app = ZappaWSGIMiddleware(app.wsgi_app)
+    app.wsgi_app = ZappaWSGIMiddleware(app.wsgi_app)
 
     print 'event', event
 
