@@ -131,9 +131,12 @@ def deploy(environment, zappa_settings):
         if settings[environment].get('touch', True):
             requests.get(endpoint_url)
     finally:
-        # Finally, delete the local copy our zip package
-        if settings[environment].get('delete_zip', True):
-            os.remove(zip_path)
+        try:
+            # Finally, delete the local copy our zip package
+            if settings[environment].get('delete_zip', True):
+                os.remove(zip_path)
+        except:
+            print "WARNING: Manual cleanup of the zip might be needed."
 
     print("Your Zappa deployment is live!: " + endpoint_url)
 
