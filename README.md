@@ -4,7 +4,9 @@
 
 **flask-zappa** makes it super easy to deploy Flask applications on AWS Lambda + API Gateway. Think of it as "serverless" web hosting for your Flask apps.
 
-That means:
+## Flask-Zappa is still under development! Look at the non-master branches to follow the progress! 
+
+Serverless Flask means:
 
 * **No more** tedious web server configuration!
 * **No more** paying for 24/7 server uptime!
