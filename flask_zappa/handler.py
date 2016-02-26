@@ -28,8 +28,6 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
 
     app.wsgi_app = ZappaWSGIMiddleware(app.wsgi_app)
 
-    print 'event', event
-
     # This is a normal HTTP request
     if event.get('method', None):
         # If we just want to inspect this,
@@ -56,7 +54,6 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
         # Create the environment for WSGI and handle the request
         environ = create_wsgi_request(event, script_name=settings.SCRIPT_NAME,
                                       trailing_slash=False)
-        print 'environ =', environ
 
         response = Response.from_app(app, environ)
 

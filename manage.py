@@ -14,8 +14,6 @@ def _package(environment, zappa_settings):
     # Loading settings from json
     settings = json.load(zappa_settings)
 
-    print settings
-
     project_name = settings[environment]['project_name']
 
     # Make your Zappa object
@@ -53,7 +51,7 @@ def _package(environment, zappa_settings):
     # Also define the path the handler file so it can be copied to the zip root
     # for Lambda.
     current_file = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    print 'current_file', current_file
+
     handler_file = current_file + os.sep + 'flask_zappa' + os.sep + 'handler.py'
     lambda_name = project_name + '-' + environment
     zip_path = zappa.create_lambda_zip(lambda_name, handler_file=handler_file)
@@ -66,11 +64,6 @@ def _package(environment, zappa_settings):
             script_name = environment
         else:
             script_name = ''
-
-        if "ZappaMiddleware" not in all_contents:
-            print("\n\nWARNING!\n")
-            print("You do not have ZappaMiddleware in your remote settings's MIDDLEWARE_CLASSES.\n")
-            print("This means that some aspects of your application may not work!\n\n")
 
         all_contents = (all_contents +
                         '\n# Automatically added by Zappa:\nSCRIPT_NAME=\'/' +
