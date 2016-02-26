@@ -25,30 +25,64 @@ This project is for Flask-specific integration. If you are intersted in how this
 
 ## Installation
 
-    $ pip install flask-zappa
+This branch is under development so the installation is a little quirky. Once it stabilizes this will improve:
+
+    $ pip install git+https://github.com/Doerge/Zappa
+    $ pip install git+https://github.com/Miserlou/flask-zappa.git@basic_example
 
 ## Configuration
 
 There are a few settings that you must define before you deploy your application. First, you must have your AWS credentials stored in _~/.aws/credentials'_.
 
-Finally, define a ZAPPA_SETTINGS setting in your local settings file which maps your named deployment environments to deployed settings and an S3 bucket (which must already be created). These can be named anything you like, but you may wish to have seperate _dev_, _staging_ and _production_ environments in order to separate your data.
+Finally, define a json file (e.g. `zappa_settings`) which maps your named deployment environments to deployed settings and an S3 bucket (which must already be created). These can be named anything you like, but you may wish to have seperate _dev_, _staging_ and _production_ environments in order to separate your data.
 
-```python
-ZAPPA_SETTINGS = {
-    'production': {
-        's3_bucket': 'production-bucket',
-        'settings_file': '~/Projects/MyApp/settings/production_settings.py',
+```javascript
+{
+    "production": {
+       "s3_bucket": "flask-test",
+       "settings_file": "production_settings.py",
+       "project_name": "MyTestProject2"
     },
-    'staging': {
-        's3_bucket': 'staging-bucket',
-        'settings_file': '~/Projects/MyApp/settings/staging_settings.py',
-    },
+    "staging": {
+       "s3_bucket": "staging-bucket",
+       "settings_file": "staging_settings.py",
+       "project_name": "MyTestProject3"
+    }
 }
 ```
 
-Notice that each environment defines a path to a settings file. This file will be used as your _server-side_ settings file. Specifically, you will want to define [a new SECRET_KEY](https://gist.github.com/Miserlou/a9cbe22d06cbabc07f21), as well as your deployment DATABASES information.
+Notice that each environment defines a path to a settings file. This file will be used as your _server-side_ settings file. This is a temporary bad hack which will change to in the near^TM future.
+
+Currently the settings file requires two settings:
+
+```python
+APP_MODULE="test_app"
+APP_OBJECT="app"
+```
+
+where the `APP_MODULE` defines the path of the module your flask-`app` object is defined in, and `APP_OBJECT` defines the name of the app-object.
+
+#### Detailed Setting Up an Example app
+
+This will be improve A LOT!
+
+Make sure your credentials are located in `~/.aws/credentials` and you have set a default region in `~/.aws/config`.
+
+    $ mkdir mytestapp
+    $ cd mytestapp
+    $ virtualenv venv
+    $ source venv/bin/activate
+    $ pip install git+https://github.com/Doerge/Zappa
+    $ pip install git+https://github.com/Miserlou/flask-zappa.git@basic_example
+    $ curl https://gist.githubusercontent.com/Doerge/0714d7dbd1c4fdf1484c/raw/0ebaa6ba57c240393ff11abfb1703eeabd522c1b/test_app.py > test_app.py
+    $ curl https://raw.githubusercontent.com/Miserlou/flask-zappa/basic_example/manage.py -o venv/lib/python2.7/site-packages/manage.py
+    $ curl https://gist.githubusercontent.com/Doerge/3f65ffd74a7b17b49bed/raw/5193db75775bbe1a3523aa655c03dde037b7c6a6/production_settings.py -o production_settings.py
+    $ curl https://gist.githubusercontent.com/Doerge/194a01e61194d8021caa/raw/b7b2b9624de3eb4c5167b519cdfc3c57c42ad83a/test_settings.json -o test_settings.json
+    $ python venv/lib/python2.7/site-packages/manage.py deploy production test_settings.json
 
 #### A Note About Databases
+
+From django-zappa. Completely untested on flask-zappa:
 
 Since Zappa requirements are called from a bundled version of your local environment and not from pip, and because we have no way to determine what platform our Zappa handler will be executing on, we need to make sure that we only use portable packages. So, instead of using the default MySQL engine, we will instead need to use _mysql-python-connector_.
 
@@ -56,13 +90,27 @@ Currently, Zappa only supports MySQL and Aurora on RDS.
 
 ## Basic Usage
 
+Requirements:
+* Stand in your project root.
+* A virtualenv must be active. All packages which your flask-app requires must be installed, along with zappa and flask-zappa.
+
 #### Initial Deployments
+
+To deploy the code to AWS Lambda, and  AWS API-gateway issue:
+
+    python manage.py deploy <environment> zappa_settings.json
+
+where _<environment>_ is an entry (e.g. _production_) in your settings file as described above.
 
 #### Updates
 
-#### Management
+After the initial deployment, the code can be updated with:
+
+    python manage.py update <environment> zappa_settings.json
 
 ## Advanced Usage
+
+UNTESTED with flask-zappa.
 
 There are other settings that you can define in your ZAPPA_SETTINGS
 to change Zappa's behavior. Use these at your own risk!
@@ -84,6 +132,10 @@ ZAPPA_SETTINGS = {
     }
 }
 ```
+
+## Known Issues
+
+* Only the standard flask session cookie currently persists.
 
 ## TODO
 
