@@ -25,6 +25,7 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
 
     # The flask-app
     app = getattr(app_module, settings.APP_OBJECT)
+    app.config.from_object('zappa_settings')
 
     app.wsgi_app = ZappaWSGIMiddleware(app.wsgi_app)
 
