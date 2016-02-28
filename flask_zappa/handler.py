@@ -36,7 +36,7 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
         # https://your_api.aws-api.com/?event_echo=true
         event_echo = getattr(settings, "EVENT_ECHO", True)
         if event_echo:
-            if 'event_echo' in event['params'].values():
+            if 'event_echo' in list(event['params'].values()):
                 return {'Content': str(event) + '\n' + str(context), 'Status': 200}
 
         # TODO: Enable Let's Encrypt
@@ -94,7 +94,7 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
             # absolute on Werkzeug. We can set autocorrect_location_header on
             # the response to False, but it doesn't work. We have to manually
             # remove the host part.
-            location = response.location.split(environ[u'HTTP_HOST'])[1]
+            location = response.location.split(environ['HTTP_HOST'])[1]
             raise Exception(location)
         else:
             return zappa_returndict

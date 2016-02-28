@@ -78,7 +78,6 @@ def _package(environment, zappa_settings):
         lambda_zip.close()
 
     os.unlink('zappa_settings.py')
-    print zip_path
 
     return zappa, settings, s3_bucket_name, lambda_name, zip_path
 
@@ -94,7 +93,7 @@ def cli():
 @click.argument('zappa_settings', required=True, type=click.File('rb'))
 def deploy(environment, zappa_settings):
     """ Package, create and deploy to Lambda."""
-    print "deploying to %s" % environment
+    print(("Deploying " + environment))
 
     zip_path = None
 
@@ -112,8 +111,7 @@ def deploy(environment, zappa_settings):
                                                   'handler.lambda_handler')
 
         # Create and configure the API Gateway
-        delay = settings[environment].get('deploy_delay', 1)
-        api_id = zappa.create_api_gateway_routes(lambda_arn, lambda_name, delay)
+        api_id = zappa.create_api_gateway_routes(lambda_arn, lambda_name)
 
         # Deploy the API!
         endpoint_url = zappa.deploy_api_gateway(api_id, environment)
@@ -129,9 +127,9 @@ def deploy(environment, zappa_settings):
             if settings[environment].get('delete_zip', True):
                 os.remove(zip_path)
         except:
-            print "WARNING: Manual cleanup of the zip might be needed."
+            print("WARNING: Manual cleanup of the zip might be needed.")
 
-    print("Your Zappa deployment is live!: " + endpoint_url)
+    print(("Your Zappa deployment is live!: " + endpoint_url))
 
 
 @cli.command()
@@ -139,9 +137,7 @@ def deploy(environment, zappa_settings):
 @click.argument('zappa_settings', required=True, type=click.File('rb'))
 def update(environment, zappa_settings):
     """ Update an existing deployment."""
-    print "update"
-
-    print "deploying to %s" % environment
+    print(("Updating " + environment))
 
     zip_path = None
 
@@ -161,9 +157,12 @@ def update(environment, zappa_settings):
         # Remove the uploaded zip from S3, because it is now registered..
         zappa.remove_from_s3(zip_path, s3_bucket_name)
     finally:
-        # Finally, delete the local copy our zip package
-        if zip_path and settings[environment].get('delete_zip', True):
-            os.remove(zip_path)
+        try:
+            # Finally, delete the local copy our zip package
+            if settings[environment].get('delete_zip', True):
+                os.remove(zip_path)
+        except:
+            print("WARNING: Manual cleanup of the zip might be needed.")
 
     print("Your updated Zappa deployment is live!")
 
