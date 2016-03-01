@@ -75,10 +75,9 @@ Make sure your credentials are located in `~/.aws/credentials` and you have set 
     $ pip install git+https://github.com/Doerge/Zappa
     $ pip install git+https://github.com/Miserlou/flask-zappa.git@basic_example
     $ curl https://gist.githubusercontent.com/Doerge/0714d7dbd1c4fdf1484c/raw/0ebaa6ba57c240393ff11abfb1703eeabd522c1b/test_app.py > test_app.py
-    $ curl https://raw.githubusercontent.com/Miserlou/flask-zappa/basic_example/manage.py -o venv/lib/python2.7/site-packages/manage.py
     $ curl https://gist.githubusercontent.com/Doerge/3f65ffd74a7b17b49bed/raw/5193db75775bbe1a3523aa655c03dde037b7c6a6/production_settings.py -o production_settings.py
     $ curl https://gist.githubusercontent.com/Doerge/194a01e61194d8021caa/raw/b7b2b9624de3eb4c5167b519cdfc3c57c42ad83a/test_settings.json -o test_settings.json
-    $ python venv/lib/python2.7/site-packages/manage.py deploy production test_settings.json
+    $ flask-zappa deploy production test_settings.json
 
 #### A Note About Databases
 
@@ -98,7 +97,7 @@ Requirements:
 
 To deploy the code to AWS Lambda, and  AWS API-gateway issue:
 
-    python manage.py deploy <environment> zappa_settings.json
+    flask-zappa deploy <environment> zappa_settings.json
 
 where _<environment>_ is an entry (e.g. _production_) in your settings file as described above.
 
@@ -106,7 +105,7 @@ where _<environment>_ is an entry (e.g. _production_) in your settings file as d
 
 After the initial deployment, the code can be updated with:
 
-    python manage.py update <environment> zappa_settings.json
+    flask-zappa update <environment> zappa_settings.json
 
 ## Advanced Usage
 
