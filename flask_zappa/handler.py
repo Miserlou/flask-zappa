@@ -14,7 +14,7 @@ from zappa.middleware import ZappaWSGIMiddleware
 
 def lambda_handler(event, context, settings_name="zappa_settings"):
     """ An AWS Lambda function which parses specific API Gateway input into a
-    WSGI request, feeds it to Django, procceses the Django response, and returns
+    WSGI request, feeds it to Flask, procceses the Flask response, and returns
     that back to the API Gateway.
     """
     # Loading settings from a python module
@@ -94,7 +94,10 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
             # absolute on Werkzeug. We can set autocorrect_location_header on
             # the response to False, but it doesn't work. We have to manually
             # remove the host part.
-            location = response.location.split(environ['HTTP_HOST'])[1]
+            location = response.location
+            hostname = 'https://' + environ['HTTP_HOST']
+            if location.startswith(hostname):
+                location = location[len(hostname):]
             raise Exception(location)
         else:
             return zappa_returndict

@@ -16,6 +16,7 @@ setup(
     name='flask-zappa',
     version='0.0.1',
     packages=['flask_zappa'],
+    scripts=['bin/flask-zappa'],
     install_requires=required,  
     include_package_data=True,
     license='MIT License',
