@@ -55,7 +55,8 @@ def apply_zappa_settings(zappa_obj, zappa_settings, environment):
     return settings
 
 
-def _package(environment, zappa_settings):
+
+def _init(environment, zappa_settings):
     # Make your Zappa object
     zappa = Zappa()
 
@@ -69,10 +70,17 @@ def _package(environment, zappa_settings):
     handler_file = os.path.join(module_dir, 'handler.py')
     lambda_name = settings['project_name'] + '-' + environment
 
+    return zappa, settings, handler_file, lambda_name
+
+def _package(environment, zappa_settings):
+    zappa, settings, handler_file, lambda_name = _init(environment, zappa_settings)
+
     # assume zappa_settings is at the project root
     #os.chdir(os.path.dirname(zappa_settings))
 
-    zip_path = zappa.create_lambda_zip(lambda_name, handler_file=handler_file)
+    zip_path = zappa.create_lambda_zip(lambda_name,
+                                       handler_file=handler_file,
+                                       exclude=settings['exclude'])
 
     # Add this environment's settings to that zipfile
     with open(settings['settings_file'], 'r') as f:
@@ -201,6 +209,52 @@ def update(environment, zappa_settings):
 
     print("Your updated Zappa deployment is live!")
 
+
+@cli.command()
+@click.argument('environment', required=True)
+@click.argument('zappa_settings', required=True, type=click.File('rb'))
+def tail(environment, zappa_settings):
+    """ Stolen verbatim from django-zappa: 
+        https://github.com/Miserlou/django-zappa/blob/master/django_zappa/management/commands/tail.py
+    """
+
+    def print_logs(logs):
+
+        for log in logs:
+            timestamp = log['timestamp']
+            message = log['message']
+            if "START RequestId" in message:
+                continue
+            if "REPORT RequestId" in message:
+                continue
+            if "END RequestId" in message:
+                continue
+
+            print("[" + str(timestamp) + "] " + message.strip())
+
+    zappa, settings, _, lambda_name = _init(environment, zappa_settings)
+
+    try:
+        # Tail the available logs
+        all_logs = zappa.fetch_logs(lambda_name)
+        print_logs(all_logs)
+
+        # Keep polling, and print any new logs.
+        while True:
+            all_logs_again = zappa.fetch_logs(lambda_name)
+            new_logs = []
+            for log in all_logs_again:
+                if log not in all_logs:
+                    new_logs.append(log)
+
+            print_logs(new_logs)
+            all_logs = all_logs + new_logs
+    except KeyboardInterrupt:
+        # Die gracefully
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
 
 if __name__ == "__main__":
     cli()
