@@ -1,1 +1,6 @@
-zappa==0.10.3
+base58==0.2.2
+click==6.2
+Flask>=0.10.1
+requests==2.9.1
+Werkzeug==0.11.4
+zappa==0.11.2
