@@ -29,26 +29,28 @@ This project is for Flask-specific integration. If you are intersted in how this
 
 This branch is under development so the installation is a little quirky. Once it stabilizes this will improve:
 
-    $ pip install git+https://github.com/Doerge/Zappa
-    $ pip install git+https://github.com/Miserlou/flask-zappa.git@basic_example
+    $ pip install git+https://github.com/Miserlou/Zappa
+    $ pip install git+https://github.com/Miserlou/flask-zappa
 
 ## Configuration
 
 There are a few settings that you must define before you deploy your application. First, you must have your AWS credentials stored in _~/.aws/credentials'_.
 
-Finally, define a json file (e.g. `zappa_settings`) which maps your named deployment environments to deployed settings and an S3 bucket (which must already be created). These can be named anything you like, but you may wish to have seperate _dev_, _staging_ and _production_ environments in order to separate your data.
+Finally, define a json file (e.g. `zappa_settings.json`) which maps your named deployment environments to deployed settings and an S3 bucket (which must already be created). These can be named anything you like, but you may wish to have seperate _dev_, _staging_ and _production_ environments in order to separate your data.
 
 ```javascript
 {
-    "production": {
-       "s3_bucket": "flask-test",
+    "development": {
+       "s3_bucket": "my-flask-test-bucket",
        "settings_file": "production_settings.py",
-       "project_name": "MyTestProject2"
+       "project_name": "MyFlaskTestProject",
+       "exclude": ["*.git*", "./static/*", "*.DS_Store", "tests/*", "*.zip"]
     },
     "staging": {
        "s3_bucket": "staging-bucket",
        "settings_file": "staging_settings.py",
-       "project_name": "MyTestProject3"
+       "project_name": "MyFlaskTestProject",
+       "exclude": ["*.git*", "./static/*", "*.DS_Store", "tests/*", "*.zip"]
     }
 }
 ```
@@ -63,31 +65,6 @@ APP_OBJECT="app"
 ```
 
 where the `APP_MODULE` defines the path of the module your flask-`app` object is defined in, and `APP_OBJECT` defines the name of the app-object.
-
-#### Detailed Setting Up an Example app
-
-This will be improve A LOT!
-
-Make sure your credentials are located in `~/.aws/credentials` and you have set a default region in `~/.aws/config`.
-
-    $ mkdir mytestapp
-    $ cd mytestapp
-    $ virtualenv venv
-    $ source venv/bin/activate
-    $ pip install git+https://github.com/Doerge/Zappa
-    $ pip install git+https://github.com/Miserlou/flask-zappa.git@basic_example
-    $ curl https://gist.githubusercontent.com/Doerge/0714d7dbd1c4fdf1484c/raw/0ebaa6ba57c240393ff11abfb1703eeabd522c1b/test_app.py > test_app.py
-    $ curl https://gist.githubusercontent.com/Doerge/3f65ffd74a7b17b49bed/raw/5193db75775bbe1a3523aa655c03dde037b7c6a6/production_settings.py -o production_settings.py
-    $ curl https://gist.githubusercontent.com/Doerge/194a01e61194d8021caa/raw/b7b2b9624de3eb4c5167b519cdfc3c57c42ad83a/test_settings.json -o test_settings.json
-    $ flask-zappa deploy production test_settings.json
-
-#### A Note About Databases
-
-From django-zappa. Completely untested on flask-zappa:
-
-Since Zappa requirements are called from a bundled version of your local environment and not from pip, and because we have no way to determine what platform our Zappa handler will be executing on, we need to make sure that we only use portable packages. So, instead of using the default MySQL engine, we will instead need to use _mysql-python-connector_.
-
-Currently, Zappa only supports MySQL and Aurora on RDS.
 
 ## Basic Usage
 
@@ -108,6 +85,37 @@ where _<environment>_ is an entry (e.g. _production_) in your settings file as d
 After the initial deployment, the code can be updated with:
 
     flask-zappa update <environment> zappa_settings.json
+
+#### Detailed Setting Up an Example app
+
+This will be improve A LOT!
+
+Make sure your credentials are located in `~/.aws/credentials` and you have set a default region in `~/.aws/config`.
+
+    $ mkdir mytestapp
+    $ cd mytestapp
+    $ virtualenv venv
+    $ source venv/bin/activate
+    $ pip install git+https://github.com/Miserlou/Zappa
+    $ pip install git+https://github.com/Miserlou/flask-zappa
+    $ curl https://gist.githubusercontent.com/Doerge/0714d7dbd1c4fdf1484c/raw/0ebaa6ba57c240393ff11abfb1703eeabd522c1b/test_app.py -o test_app.py
+    $ curl https://gist.githubusercontent.com/Doerge/3f65ffd74a7b17b49bed/raw/5193db75775bbe1a3523aa655c03dde037b7c6a6/production_settings.py -o production_settings.py
+    $ curl https://gist.githubusercontent.com/Doerge/194a01e61194d8021caa/raw/b7b2b9624de3eb4c5167b519cdfc3c57c42ad83a/test_settings.json -o test_settings.json
+
+Edit `'bucket': '...'` in `test_settings.json`.
+
+    $ flask-zappa deploy production test_settings.json
+
+Visit the url printed in the terminal. You should see Hello, world! served from `test_app.py`. There are other endpoints defined in `test_app.py` which demonstrates that various standard HTTP methods and flask features work.
+
+#### A Note About Databases
+
+From django-zappa. Completely untested on flask-zappa:
+
+Since Zappa requirements are called from a bundled version of your local environment and not from pip, and because we have no way to determine what platform our Zappa handler will be executing on, we need to make sure that we only use portable packages. So, instead of using the default MySQL engine, we will instead need to use _mysql-python-connector_.
+
+Currently, Zappa only supports MySQL and Aurora on RDS.
+
 
 ## Advanced Usage
 
@@ -136,7 +144,7 @@ ZAPPA_SETTINGS = {
 
 ## Known Issues
 
-* Only the standard flask session cookie currently persists.
+* Cookies work, but the client have no concept of expiration of them.
 
 ## TODO
 
