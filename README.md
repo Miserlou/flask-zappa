@@ -99,8 +99,8 @@ Make sure your credentials are located in `~/.aws/credentials` and you have set 
     $ pip install git+https://github.com/Miserlou/Zappa
     $ pip install git+https://github.com/Miserlou/flask-zappa
     $ curl https://gist.githubusercontent.com/Doerge/0714d7dbd1c4fdf1484c/raw/0ebaa6ba57c240393ff11abfb1703eeabd522c1b/test_app.py -o test_app.py
-    $ curl https://gist.githubusercontent.com/Doerge/3f65ffd74a7b17b49bed/raw/5193db75775bbe1a3523aa655c03dde037b7c6a6/production_settings.py -o production_settings.py
-    $ curl https://gist.githubusercontent.com/Doerge/194a01e61194d8021caa/raw/b7b2b9624de3eb4c5167b519cdfc3c57c42ad83a/test_settings.json -o test_settings.json
+    $ curl https://gist.githubusercontent.com/Doerge/3f65ffd74a7b17b49bed/raw/956031dd0f946dd25b86e207bb3d73fac29043a2/development_settings.py -o development_settings.py
+    $ curl https://gist.githubusercontent.com/Doerge/194a01e61194d8021caa/raw/6bfd8908d09fa62a81674051648c52645e392ee8/test_settings.json -o test_settings.json
 
 Edit `'bucket': '...'` in `test_settings.json`.
 
