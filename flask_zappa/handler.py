@@ -56,6 +56,9 @@ def lambda_handler(event, context, settings_name="zappa_settings"):
         environ = create_wsgi_request(event, script_name=settings.SCRIPT_NAME,
                                       trailing_slash=False)
 
+        # We are always on https on Lambda, so tell our wsgi app that.
+        environ['wsgi.url_scheme'] = 'https'
+
         response = Response.from_app(app, environ)
 
         # This doesn't work. It should probably be set right after creation, not
