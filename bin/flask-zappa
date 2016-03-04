@@ -78,9 +78,12 @@ def _package(environment, zappa_settings):
     # assume zappa_settings is at the project root
     #os.chdir(os.path.dirname(zappa_settings))
 
+    # List of patterns to exclude when zipping our package for Lambda
+    exclude = settings.get('exclude', list())
+
     zip_path = zappa.create_lambda_zip(lambda_name,
                                        handler_file=handler_file,
-                                       exclude=settings['exclude'])
+                                       exclude=exclude)
 
     # Add this environment's settings to that zipfile
     with open(settings['settings_file'], 'r') as f:
