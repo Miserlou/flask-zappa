@@ -50,7 +50,7 @@ def apply_zappa_settings(zappa_obj, zappa_settings, environment):
 
     for setting in CUSTOM_SETTINGS:
         if setting in settings:
-            setattr(zappa, setting, settings[setting])
+            setattr(zappa_obj, setting, settings[setting])
 
     return settings
 
