@@ -9,6 +9,7 @@ import unittest
 
 from zappa.zappa import Zappa
 from flask_zappa.handler import lambda_handler
+from bin.client import _init
 
 class TestZappa(unittest.TestCase):
 
@@ -25,6 +26,15 @@ class TestZappa(unittest.TestCase):
     def test_zappa(self):
         self.assertTrue(True)
         Zappa()
+
+    ##
+    # Bin settings
+    ##
+
+    def test_init(self):
+        with open('test_settings.json') as f:
+            _init('test', f)
+
 
 if __name__ == '__main__':
     unittest.main()

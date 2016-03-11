@@ -1,0 +1,8 @@
+{
+    "test": {
+       "s3_bucket": "my-flask-test-bucket",
+       "settings_file": "test_settings.py",
+       "project_name": "MyFlaskTestProject",
+       "exclude": ["*.git*", "./static/*", "*.DS_Store", "tests/*", "*.zip"]
+    }
+}
