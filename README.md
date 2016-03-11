@@ -1,10 +1,10 @@
 ![Logo](http://i.imgur.com/vLflpND.gif)
-# flask-zappa [![Build Status](https://travis-ci.org/Miserlou/flask-zappa.svg)](https://travis-ci.org/Miserlou/flask-zappa) [![Slack](https://img.shields.io/badge/chat-slack-ff69b4.svg)](https://slackautoinviter.herokuapp.com/)
+# flask-zappa [![Build Status](https://travis-ci.org/Miserlou/flask-zappa.svg)](https://travis-ci.org/Miserlou/flask-zappa) [![Coverage](https://img.shields.io/coveralls/Miserlou/flask-zappa.svg)](https://coveralls.io/github/Miserlou/flask-zappa) [![Slack](https://img.shields.io/badge/chat-slack-ff69b4.svg)](https://slackautoinviter.herokuapp.com/)
 #### Serverless Flask with AWS Lambda + API Gateway
 
 **flask-zappa** makes it super easy to deploy Flask applications on AWS Lambda + API Gateway. Think of it as "serverless" web hosting for your Flask apps.
 
-## Flask-Zappa is still under development! Look at the non-master branches to follow the progress! 
+Flask-Zappa is still under development! Look at the non-master branches to follow the progress! 
 
 Serverless Flask means:
 
