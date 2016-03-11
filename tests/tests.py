@@ -9,7 +9,7 @@ import unittest
 
 from zappa.zappa import Zappa
 from flask_zappa.handler import lambda_handler
-from bin.client import _init
+from bin.client import _init, _package
 
 class TestZappa(unittest.TestCase):
 
@@ -35,6 +35,11 @@ class TestZappa(unittest.TestCase):
         with open('test_settings.json') as f:
             _init('test', f)
 
+    def test_package(self):
+        with open('test_settings.json') as f:
+            zappa, settings, lmbda, zip_path = _package('test', f)
+            self.assertTrue(os.path.isfile(zip_path))
+            os.unlink(zip_path)
 
 if __name__ == '__main__':
     unittest.main()
