@@ -108,15 +108,6 @@ Edit `'bucket': '...'` in `test_settings.json`.
 
 Visit the url printed in the terminal. You should see Hello, world! served from `test_app.py`. There are other endpoints defined in `test_app.py` which demonstrates that various standard HTTP methods and flask features work.
 
-#### A Note About Databases
-
-From django-zappa. Completely untested on flask-zappa:
-
-Since Zappa requirements are called from a bundled version of your local environment and not from pip, and because we have no way to determine what platform our Zappa handler will be executing on, we need to make sure that we only use portable packages. So, instead of using the default MySQL engine, we will instead need to use _mysql-python-connector_.
-
-Currently, Zappa only supports MySQL and Aurora on RDS.
-
-
 ## Advanced Usage
 
 UNTESTED with flask-zappa.
